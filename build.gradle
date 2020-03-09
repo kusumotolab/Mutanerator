@@ -12,6 +12,7 @@ plugins {
 
     // Apply the application plugin to add support for building a CLI application.
     id 'application'
+    id 'eclipse'
 }
 
 repositories {
@@ -21,6 +22,10 @@ repositories {
 }
 
 dependencies {
+    compile 'args4j:args4j:2.33'
+    compile group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.core', version: '3.20.0'
+  
+  
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:28.1-jre'
 
