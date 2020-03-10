@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.junit.Test;
 
 public class MutatorTest {
@@ -85,6 +87,110 @@ public class MutatorTest {
     mutation.mutator.mutate(mutation);
 
     final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
+    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+  }
+
+  @Test
+  public void testIncrement01() {
+
+    final String text = //
+        "class Test01{" + //
+            "  int method01(int a){" + //
+            "    return a++;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0A(text, PostfixExpression.Operator.INCREMENT,
+        PostfixExpression.Operator.DECREMENT);
+  }
+
+  @Test
+  public void testIncrement02() {
+
+    final String text = //
+        "class Test02{" + //
+            "  int method02(int a){" + //
+            "    return a--;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0A(text, PostfixExpression.Operator.DECREMENT,
+        PostfixExpression.Operator.INCREMENT);
+  }
+
+  @Test
+  public void testIncrement03() {
+
+    final String text = //
+        "class Test03{" + //
+            "  int method03(int a){" + //
+            "    return ++a;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0B(text, PrefixExpression.Operator.INCREMENT,
+        PrefixExpression.Operator.DECREMENT);
+  }
+
+  @Test
+  public void testIncrement04() {
+
+    final String text = //
+        "class Test04{" + //
+            "  int method04(int a){" + //
+            "    return --a;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0B(text, PrefixExpression.Operator.DECREMENT,
+        PrefixExpression.Operator.INCREMENT);
+  }
+
+  private void testIncrements0A(final String text,
+      final PostfixExpression.Operator assumedOriginalOperator,
+      final PostfixExpression.Operator assumedMutatedOperator) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.Increments);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(PostfixExpression.class);
+
+    final PostfixExpression.Operator originalOperator = ((PostfixExpression) node).getOperator();
+    assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
+
+    final Mutation mutation = new Mutation(Mutator.Increments, node);
+    mutation.mutator.mutate(mutation);
+
+    final PostfixExpression.Operator mutatedOperator = ((PostfixExpression) node).getOperator();
+    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+  }
+
+  private void testIncrements0B(final String text,
+      final PrefixExpression.Operator assumedOriginalOperator,
+      final PrefixExpression.Operator assumedMutatedOperator) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.Increments);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(PrefixExpression.class);
+
+    final PrefixExpression.Operator originalOperator = ((PrefixExpression) node).getOperator();
+    assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
+
+    final Mutation mutation = new Mutation(Mutator.Increments, node);
+    mutation.mutator.mutate(mutation);
+
+    final PrefixExpression.Operator mutatedOperator = ((PrefixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
   }
 

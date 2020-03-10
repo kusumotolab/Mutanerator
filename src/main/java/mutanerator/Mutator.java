@@ -3,6 +3,8 @@ package mutanerator;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 
 public enum Mutator {
 
@@ -41,18 +43,53 @@ public enum Mutator {
       super.recoverInfixOperator(mutation);
     }
   },
-  Increments(false) {
+  Increments(true) {
 
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
+    void mutate(final Mutation mutation) {
+      if (mutation.node instanceof PostfixExpression) {
 
+        final PostfixExpression postfix = (PostfixExpression) mutation.node;
+        final PostfixExpression.Operator operator = postfix.getOperator();
+        ORIGINAL_POSTFIX_OPERATORS.put(mutation, operator);
+
+        // "--" -> "++"
+        if (operator.equals(PostfixExpression.Operator.DECREMENT)) {
+          postfix.setOperator(PostfixExpression.Operator.INCREMENT);
+        }
+
+        // "++" -> "--"
+        else if (operator.equals(PostfixExpression.Operator.INCREMENT)) {
+          postfix.setOperator(PostfixExpression.Operator.DECREMENT);
+        }
+
+      } else if (mutation.node instanceof PrefixExpression) {
+
+        final PrefixExpression prefix = (PrefixExpression) mutation.node;
+        final PrefixExpression.Operator operator = prefix.getOperator();
+        ORIGINAL_PREFIX_OPERATORS.put(mutation, operator);
+
+        // "--" -> "++"
+        if (operator.equals(PrefixExpression.Operator.DECREMENT)) {
+          prefix.setOperator(PrefixExpression.Operator.INCREMENT);
+        }
+
+        // "++" -> "--"
+        else if (operator.equals(PrefixExpression.Operator.INCREMENT)) {
+          prefix.setOperator(PrefixExpression.Operator.DECREMENT);
+        }
+      } else {
+        assert false : "illegal statement";
+      }
     }
 
     @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void recover(final Mutation mutation) {
+      if (mutation.node instanceof PostfixExpression) {
+        super.recoverPostfixOperator(mutation);
+      } else if (mutation.node instanceof PrefixExpression) {
+        super.recoverPrefixOperator(mutation);
+      }
     }
   },
   InvertNegatives(false) {
@@ -525,7 +562,12 @@ public enum Mutator {
   };
 
   public final boolean available;
-  private static Map<Mutation, InfixExpression.Operator> ORIGINAL_INFIX_OPERATORS = new HashMap<>();
+  private static final Map<Mutation, InfixExpression.Operator> ORIGINAL_INFIX_OPERATORS =
+      new HashMap<>();
+  private static final Map<Mutation, PostfixExpression.Operator> ORIGINAL_POSTFIX_OPERATORS =
+      new HashMap<>();
+  private static final Map<Mutation, PrefixExpression.Operator> ORIGINAL_PREFIX_OPERATORS =
+      new HashMap<>();
 
   Mutator(final boolean available) {
     this.available = available;
@@ -560,5 +602,51 @@ public enum Mutator {
 
     // 変異が適用された演算子の群から，元に戻した演算子を取り除く
     ORIGINAL_INFIX_OPERATORS.remove(mutation);
+  }
+
+  /**
+   * PostfixExpressionの演算子を元に戻す
+   * 
+   * @param mutation
+   */
+  private void recoverPostfixOperator(final Mutation mutation) {
+
+    // 変異が適用されていない場合は何もせずにメソッドを抜ける
+    if (!ORIGINAL_POSTFIX_OPERATORS.containsKey(mutation)) {
+      System.err.println(mutation.toString() + " is not applied.");
+      return;
+    }
+
+    // 演算子を元に戻す
+    assert mutation.node instanceof PostfixExpression : "illegal statement";
+    final PostfixExpression infix = (PostfixExpression) mutation.node;
+    final PostfixExpression.Operator operator = ORIGINAL_POSTFIX_OPERATORS.get(mutation);
+    infix.setOperator(operator);
+
+    // 変異が適用された演算子の群から，元に戻した演算子を取り除く
+    ORIGINAL_POSTFIX_OPERATORS.remove(mutation);
+  }
+
+  /**
+   * PrefixExpressionの演算子を元に戻す
+   * 
+   * @param mutation
+   */
+  private void recoverPrefixOperator(final Mutation mutation) {
+
+    // 変異が適用されていない場合は何もせずにメソッドを抜ける
+    if (!ORIGINAL_PREFIX_OPERATORS.containsKey(mutation)) {
+      System.err.println(mutation.toString() + " is not applied.");
+      return;
+    }
+
+    // 演算子を元に戻す
+    assert mutation.node instanceof PrefixExpression : "illegal statement";
+    final PrefixExpression infix = (PrefixExpression) mutation.node;
+    final PrefixExpression.Operator operator = ORIGINAL_PREFIX_OPERATORS.get(mutation);
+    infix.setOperator(operator);
+
+    // 変異が適用された演算子の群から，元に戻した演算子を取り除く
+    ORIGINAL_PREFIX_OPERATORS.remove(mutation);
   }
 }

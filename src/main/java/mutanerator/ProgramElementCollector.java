@@ -4,7 +4,8 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 
 public class ProgramElementCollector extends ASTVisitor {
 
@@ -36,30 +37,78 @@ public class ProgramElementCollector extends ASTVisitor {
       return super.visit(node);
     }
 
-    final Operator operator = node.getOperator();
+    final InfixExpression.Operator operator = node.getOperator();
 
     // ConditionalsBoundary変異の対象として登録
-    if (operator.equals(Operator.GREATER) || operator.equals(Operator.GREATER_EQUALS)
-        || operator.equals(Operator.LESS) || operator.equals(Operator.LESS_EQUALS)) {
+    if (operator.equals(InfixExpression.Operator.GREATER)
+        || operator.equals(InfixExpression.Operator.GREATER_EQUALS)
+        || operator.equals(InfixExpression.Operator.LESS)
+        || operator.equals(InfixExpression.Operator.LESS_EQUALS)) {
       this.mutationTargets.put(Mutator.ConditionalsBoundary, node);
     }
 
     // Math変異の対象として登録
-    if (operator.equals(Operator.PLUS) || operator.equals(Operator.MINUS)
-        || operator.equals(Operator.TIMES) || operator.equals(Operator.DIVIDE)
-        || operator.equals(Operator.REMAINDER) || operator.equals(Operator.AND)
-        || operator.equals(Operator.OR) || operator.equals(Operator.XOR)
-        || operator.equals(Operator.LEFT_SHIFT) || operator.equals(Operator.RIGHT_SHIFT_SIGNED)
-        || operator.equals(Operator.RIGHT_SHIFT_UNSIGNED)) {
+    if (operator.equals(InfixExpression.Operator.PLUS)
+        || operator.equals(InfixExpression.Operator.MINUS)
+        || operator.equals(InfixExpression.Operator.TIMES)
+        || operator.equals(InfixExpression.Operator.DIVIDE)
+        || operator.equals(InfixExpression.Operator.REMAINDER)
+        || operator.equals(InfixExpression.Operator.AND)
+        || operator.equals(InfixExpression.Operator.OR)
+        || operator.equals(InfixExpression.Operator.XOR)
+        || operator.equals(InfixExpression.Operator.LEFT_SHIFT)
+        || operator.equals(InfixExpression.Operator.RIGHT_SHIFT_SIGNED)
+        || operator.equals(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED)) {
       this.mutationTargets.put(Mutator.Math, node);
     }
 
     // NegateConditionals変異の対象として登録
-    if (operator.equals(Operator.EQUALS) || operator.equals(Operator.NOT_EQUALS)
-        || operator.equals(Operator.LESS_EQUALS) || operator.equals(Operator.GREATER_EQUALS)
-        || operator.equals(Operator.LESS) || operator.equals(Operator.GREATER)) {
+    if (operator.equals(InfixExpression.Operator.EQUALS)
+        || operator.equals(InfixExpression.Operator.NOT_EQUALS)
+        || operator.equals(InfixExpression.Operator.LESS_EQUALS)
+        || operator.equals(InfixExpression.Operator.GREATER_EQUALS)
+        || operator.equals(InfixExpression.Operator.LESS)
+        || operator.equals(InfixExpression.Operator.GREATER)) {
       this.mutationTargets.put(Mutator.NegateConditionals, node);
     }
+    return super.visit(node);
+  }
+
+  @Override
+  public boolean visit(final PostfixExpression node) {
+
+    // 変異の範囲外である場合は何もしない
+    if (!this.inTargetRange(node)) {
+      return super.visit(node);
+    }
+
+    final PostfixExpression.Operator operator = node.getOperator();
+
+    // Increments変異の対象として登録
+    if (operator.equals(PostfixExpression.Operator.DECREMENT)
+        || operator.equals(PostfixExpression.Operator.INCREMENT)) {
+      this.mutationTargets.put(Mutator.Increments, node);
+    }
+
+    return super.visit(node);
+  }
+
+  @Override
+  public boolean visit(final PrefixExpression node) {
+
+    // 変異の範囲外である場合は何もしない
+    if (!this.inTargetRange(node)) {
+      return super.visit(node);
+    }
+
+    final PrefixExpression.Operator operator = node.getOperator();
+
+    // Increments変異の対象として登録
+    if (operator.equals(PrefixExpression.Operator.DECREMENT)
+        || operator.equals(PrefixExpression.Operator.INCREMENT)) {
+      this.mutationTargets.put(Mutator.Increments, node);
+    }
+
     return super.visit(node);
   }
 
