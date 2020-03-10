@@ -41,8 +41,20 @@ public class ProgramElementCollectorBuilder {
     // Collectorを生成
     final ProgramElementCollector collector = new ProgramElementCollector(ast);
     return collector;
-
   }
+
+  public ProgramElementCollector build(final String text) {
+
+    // ASTの構築
+    final ASTParser parser = createNewParser();
+    parser.setSource(text.toCharArray());
+    final CompilationUnit ast = (CompilationUnit) parser.createAST(null);
+
+    // Collectorを生成
+    final ProgramElementCollector collector = new ProgramElementCollector(ast);
+    return collector;
+  }
+
 
   private ASTParser createNewParser() {
     ASTParser parser = ASTParser.newParser(AST.JLS13);

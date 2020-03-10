@@ -9,21 +9,21 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 public class MutationTargets {
 
-  final Map<Mutator, List<ASTNode>> astNodes;
+  final Map<Mutator, List<ASTNode>> mutators;
 
   public MutationTargets() {
-    this.astNodes = new HashMap<>();
+    this.mutators = new HashMap<>();
     for (final Mutator mutator : Mutator.values()) {
-      this.astNodes.put(mutator, new ArrayList<ASTNode>());
+      this.mutators.put(mutator, new ArrayList<ASTNode>());
     }
   }
 
-  public List<ASTNode> getASTNodes(final Mutator mutator) {
-    return this.astNodes.get(mutator);
+  public List<ASTNode> getTargetNodes(final Mutator mutator) {
+    return this.mutators.get(mutator);
   }
 
   public void put(final Mutator mutator, final ASTNode candidate) {
-    this.astNodes.get(mutator)
+    this.mutators.get(mutator)
         .add(candidate);
   }
 
@@ -34,7 +34,7 @@ public class MutationTargets {
   }
 
   private Mutator selectMutator(final int value) {
-    final List<Mutator> availableMutators = this.astNodes.entrySet()
+    final List<Mutator> availableMutators = this.mutators.entrySet()
         .stream()
         .filter(e -> !e.getValue()
             .isEmpty())
@@ -52,7 +52,7 @@ public class MutationTargets {
   }
 
   private ASTNode selectNode(final Mutator mutator, final int value) {
-    final List<ASTNode> nodes = this.astNodes.get(mutator);
+    final List<ASTNode> nodes = this.mutators.get(mutator);
     final int index = value % nodes.size();
     return nodes.get(index);
   }
