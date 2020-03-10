@@ -256,4 +256,112 @@ public class MutatorTest {
     final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
   }
+
+  @Test
+  public void testNegateConditionals01() {
+
+    final String text = //
+        "class Test01{" + //
+            "  boolean method01(int a, int b){" + //
+            "    return a == b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.EQUALS,
+        InfixExpression.Operator.NOT_EQUALS);
+  }
+
+  @Test
+  public void testNegateConditionals02() {
+
+    final String text = //
+        "class Test02{" + //
+            "  boolean method02(int a, int b){" + //
+            "    return a != b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.NOT_EQUALS,
+        InfixExpression.Operator.EQUALS);
+  }
+
+  @Test
+  public void testNegateConditionals03() {
+
+    final String text = //
+        "class Test03{" + //
+            "  boolean method03(int a, int b){" + //
+            "    return a <= b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.LESS_EQUALS,
+        InfixExpression.Operator.GREATER);
+  }
+
+  @Test
+  public void testNegateConditionals04() {
+
+    final String text = //
+        "class Test04{" + //
+            "  boolean method04(int a, int b){" + //
+            "    return a >= b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.GREATER_EQUALS,
+        InfixExpression.Operator.LESS);
+  }
+
+  @Test
+  public void testNegateConditionals05() {
+
+    final String text = //
+        "class Test05{" + //
+            "  boolean method05(int a, int b){" + //
+            "    return a < b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.LESS,
+        InfixExpression.Operator.GREATER_EQUALS);
+  }
+
+  @Test
+  public void testNegateConditionals06() {
+
+    final String text = //
+        "class Test06{" + //
+            "  boolean method06(int a, int b){" + //
+            "    return a > b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.GREATER,
+        InfixExpression.Operator.LESS_EQUALS);
+  }
+
+  private void testNegateConditionals(final String text,
+      final InfixExpression.Operator assumedOriginalOperator,
+      final InfixExpression.Operator assumedMutatedOperator) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.NegateConditionals);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(InfixExpression.class);
+
+    final InfixExpression.Operator originalOperator = ((InfixExpression) node).getOperator();
+    assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
+
+    final Mutation mutation = new Mutation(Mutator.NegateConditionals, node);
+    mutation.mutator.mutate(mutation);
+
+    final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
+    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+  }
 }
