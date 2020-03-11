@@ -1,5 +1,4 @@
-package mutanerator;
-
+package example;
 
 public class CloseToZero {
 
