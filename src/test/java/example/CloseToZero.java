@@ -9,6 +9,6 @@ public class CloseToZero {
     if (value < 0) {
       value++;
     }
-    return 0;
+    return value;
   }
 }
