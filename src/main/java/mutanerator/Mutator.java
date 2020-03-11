@@ -2,6 +2,7 @@ package mutanerator;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -9,7 +10,6 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 public enum Mutator {
 
   ConditionalsBoundary(true) {
-
     @Override
     void mutate(final Mutation mutation) {
       assert mutation.node instanceof InfixExpression : "illegal statement";
@@ -44,7 +44,6 @@ public enum Mutator {
     }
   },
   Increments(true) {
-
     @Override
     void mutate(final Mutation mutation) {
       if (mutation.node instanceof PostfixExpression) {
@@ -93,7 +92,6 @@ public enum Mutator {
     }
   },
   InvertNegatives(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -107,7 +105,6 @@ public enum Mutator {
     }
   },
   Math(true) {
-
     @Override
     void mutate(final Mutation mutation) {
 
@@ -179,7 +176,6 @@ public enum Mutator {
   },
 
   NegateConditionals(true) {
-
     @Override
     void mutate(final Mutation mutation) {
 
@@ -225,7 +221,6 @@ public enum Mutator {
     }
   },
   ReturnValues(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -239,7 +234,6 @@ public enum Mutator {
     }
   },
   VoidMetthodCalls(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -253,7 +247,6 @@ public enum Mutator {
     }
   },
   ConstructorCalls(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -267,7 +260,6 @@ public enum Mutator {
     }
   },
   EmptyReturns(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -281,7 +273,6 @@ public enum Mutator {
     }
   },
   FalseReturns(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -295,7 +286,6 @@ public enum Mutator {
     }
   },
   InlineConstant(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -309,7 +299,6 @@ public enum Mutator {
     }
   },
   NullReturns(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -323,7 +312,6 @@ public enum Mutator {
     }
   },
   NonVoidMethodCalls(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -337,7 +325,6 @@ public enum Mutator {
     }
   },
   PrimitiveReturns(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -351,7 +338,6 @@ public enum Mutator {
     }
   },
   RemoveConditionals(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -365,7 +351,6 @@ public enum Mutator {
     }
   },
   RemoveIncrements(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -379,7 +364,6 @@ public enum Mutator {
     }
   },
   TrueReturns(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -393,7 +377,6 @@ public enum Mutator {
     }
   },
   ExperimentalArgumentPropagation(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -407,7 +390,6 @@ public enum Mutator {
     }
   },
   ExperimentalBigInteger(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -421,7 +403,6 @@ public enum Mutator {
     }
   },
   ExperimentalMemberVariable(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -435,7 +416,6 @@ public enum Mutator {
     }
   },
   ExperimentalNakedReceiver(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -449,7 +429,6 @@ public enum Mutator {
     }
   },
   ExperimentalSwitch(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -463,7 +442,6 @@ public enum Mutator {
     }
   },
   Negation(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -477,7 +455,6 @@ public enum Mutator {
     }
   },
   ArithmeticOperatorReplacement(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -491,7 +468,6 @@ public enum Mutator {
     }
   },
   ArithmeticOperatorDeletion(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -505,7 +481,6 @@ public enum Mutator {
     }
   },
   ConstantReplacement(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -519,7 +494,6 @@ public enum Mutator {
     }
   },
   BitwiseOperator(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -533,7 +507,6 @@ public enum Mutator {
     }
   },
   RelationalOperatorReplacement(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -547,7 +520,6 @@ public enum Mutator {
     }
   },
   UnaryOperatorInsertion(false) {
-
     @Override
     void mutate(Mutation mutation) {
       // TODO Auto-generated method stub
@@ -583,7 +555,7 @@ public enum Mutator {
 
   /**
    * 二項演算の演算子を元に戻す
-   * 
+   *
    * @param mutation
    */
   private void recoverInfixOperator(final Mutation mutation) {
@@ -606,7 +578,7 @@ public enum Mutator {
 
   /**
    * PostfixExpressionの演算子を元に戻す
-   * 
+   *
    * @param mutation
    */
   private void recoverPostfixOperator(final Mutation mutation) {
@@ -629,7 +601,7 @@ public enum Mutator {
 
   /**
    * PrefixExpressionの演算子を元に戻す
-   * 
+   *
    * @param mutation
    */
   private void recoverPrefixOperator(final Mutation mutation) {

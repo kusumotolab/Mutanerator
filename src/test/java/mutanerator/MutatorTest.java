@@ -1,11 +1,14 @@
 package mutanerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.junit.Test;
 
 public class MutatorTest {
@@ -203,6 +206,11 @@ public class MutatorTest {
     mutation.mutator.recover(mutation);
     final PrefixExpression.Operator recoveredOperator = ((PrefixExpression) node).getOperator();
     assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+  }
+
+  public int a(int b) {
+    int c = -b + 1;
+    return -b;
   }
 
   @Test

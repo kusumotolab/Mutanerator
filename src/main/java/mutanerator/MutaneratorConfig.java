@@ -3,6 +3,7 @@ package mutanerator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 import org.kohsuke.args4j.Option;
 
 public class MutaneratorConfig {

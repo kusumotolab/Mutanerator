@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -59,8 +60,7 @@ public class ProgramElementCollectorBuilder {
   private ASTParser createNewParser() {
     ASTParser parser = ASTParser.newParser(AST.JLS13);
 
-    @SuppressWarnings("unchecked")
-    final Map<String, String> options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+    @SuppressWarnings("unchecked") final Map<String, String> options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
     options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
     options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
     options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);

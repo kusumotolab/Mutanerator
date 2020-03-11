@@ -26,7 +26,7 @@ dependencies {
     compile group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.core', version: '3.20.0'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.15.0'
 
-  
+
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:28.1-jre'
 
