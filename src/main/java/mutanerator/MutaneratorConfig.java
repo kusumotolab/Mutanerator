@@ -13,7 +13,7 @@ public class MutaneratorConfig {
   private Path path = null;
   private Path outputDir = Paths.get(".", "mutations");
   private long seed = 0l;
-  private int mutants = 1;
+  private int mutants = 100;
   private int startLine = 1;
   private int endLine = Integer.MAX_VALUE;
 
