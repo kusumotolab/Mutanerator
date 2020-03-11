@@ -85,9 +85,12 @@ public class MutatorTest {
 
     final Mutation mutation = new Mutation(Mutator.ConditionalsBoundary, node);
     mutation.mutator.mutate(mutation);
-
     final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+
+    mutation.mutator.recover(mutation);
+    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
+    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
   }
 
   @Test
@@ -168,6 +171,10 @@ public class MutatorTest {
 
     final PostfixExpression.Operator mutatedOperator = ((PostfixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+
+    mutation.mutator.recover(mutation);
+    final PostfixExpression.Operator recoveredOperator = ((PostfixExpression) node).getOperator();
+    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
   }
 
   private void testIncrements0B(final String text,
@@ -192,6 +199,10 @@ public class MutatorTest {
 
     final PrefixExpression.Operator mutatedOperator = ((PrefixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+
+    mutation.mutator.recover(mutation);
+    final PrefixExpression.Operator recoveredOperator = ((PrefixExpression) node).getOperator();
+    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
   }
 
   @Test
@@ -361,6 +372,10 @@ public class MutatorTest {
 
     final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+
+    mutation.mutator.recover(mutation);
+    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
+    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
   }
 
   @Test
@@ -469,5 +484,9 @@ public class MutatorTest {
 
     final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
     assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
+
+    mutation.mutator.recover(mutation);
+    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
+    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
   }
 }
