@@ -15,13 +15,13 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ProgramElementCollectorBuilder {
 
+  private String fileContent = null;
 
   public ProgramElementCollector build(final Path path) {
 
     // ファイル読込
-    String content = "";
     try {
-      content = Files.readString(path, StandardCharsets.UTF_8);
+      this.fileContent = Files.readString(path, StandardCharsets.UTF_8);
     } catch (final IOException e) {
       System.err.println("failed to read " + path.toString());
       System.exit(1);
@@ -29,7 +29,7 @@ public class ProgramElementCollectorBuilder {
 
     // ASTの構築
     final ASTParser parser = createNewParser();
-    parser.setSource(content.toCharArray());
+    parser.setSource(this.fileContent.toCharArray());
     final CompilationUnit ast = (CompilationUnit) parser.createAST(null);
 
     // 与えられたASTに問題があるときは何もしない
@@ -73,5 +73,9 @@ public class ProgramElementCollectorBuilder {
     parser.setEnvironment(null, null, null, true);
 
     return parser;
+  }
+
+  public String getFileContent(){
+    return this.fileContent;
   }
 }
