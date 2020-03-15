@@ -3,7 +3,10 @@ package mutanerator;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.junit.Test;
@@ -663,6 +666,46 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.NegateConditionals, node);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
+  }
+
+  @Test
+  public void testVoidMethodCalls01() {
+
+    final String text = //
+        "class Test01{" + //
+            "  boolean method01(){" + //
+            "    System.out.println();" + //
+            "  }" + //
+            "}";
+
+    final String expectedText = //
+        "class Test01{" + //
+            "  boolean method01(){" + //
+            "  }" + //
+            "}";
+
+    this.testVoidMethodCalls(text, expectedText);
+  }
+
+  private void testVoidMethodCalls(final String text, final String expectedText) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.VoidMethodCalls);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(ExpressionStatement.class);
+
+    final Expression expression = ((ExpressionStatement) node).getExpression();
+    assertThat(expression).isInstanceOf(MethodInvocation.class);
+
+    final Mutation mutation = new Mutation(Mutator.VoidMethodCalls, node);
     final ASTNode rootNode = node.getRoot();
     final String mutatedText = mutation.apply(rootNode, text);
     assertThat(mutatedText).isEqualTo(expectedText);

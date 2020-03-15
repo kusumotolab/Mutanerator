@@ -3,7 +3,10 @@ package mutanerator;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 
@@ -27,6 +30,24 @@ public class ProgramElementCollector extends ASTVisitor {
 
   public MutationTargets getMutationTargets() {
     return this.mutationTargets;
+  }
+
+  @Override
+  public boolean visit(final ExpressionStatement node) {
+
+    // 変異の範囲外である場合は何もしない
+    if (!this.inTargetRange(node)) {
+      return super.visit(node);
+    }
+
+    final Expression expression = node.getExpression();
+
+    // VoidMethodCalls変異の対象として登録
+    if(expression instanceof MethodInvocation){
+      this.mutationTargets.put(Mutator.VoidMethodCalls, node);
+    }
+
+    return super.visit(node);
   }
 
   @Override

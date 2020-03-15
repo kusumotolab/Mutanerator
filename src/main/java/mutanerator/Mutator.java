@@ -2,6 +2,7 @@ package mutanerator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -242,9 +243,15 @@ public enum Mutator {
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
-  VoidMetthodCalls(false) {
+  VoidMethodCalls(false) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+
+      // 対象ノードのオペランドを取得
+      assert targetNode instanceof ExpressionStatement : "illegal statement";
+      final ExpressionStatement statement = (ExpressionStatement) targetNode;
+
+      rewrite.remove(statement, null);
     }
   },
   ConstructorCalls(false) {
