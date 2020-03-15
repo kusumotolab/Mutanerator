@@ -239,6 +239,50 @@ public class MutatorTest {
     assertThat(mutatedText).isEqualTo(expectedText);
   }
 
+
+  @Test
+  public void testInvertNegatives01() {
+
+    final String text = //
+        "class Test01{" + //
+            "  int method01(int a){" + //
+            "    return -a;" + //
+            "  }" + //
+            "}";
+
+    final String expectedText = //
+        "class Test01{" + //
+            "  int method01(int a){" + //
+            "    return a;" + //
+            "  }" + //
+            "}";
+
+    this.testInvertNegatives(text, PrefixExpression.Operator.MINUS, expectedText);
+  }
+
+  private void testInvertNegatives(final String text,
+      final PrefixExpression.Operator assumedOriginalOperator,
+      final String expectedText) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.InvertNegatives);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(PrefixExpression.class);
+
+    final PrefixExpression.Operator originalOperator = ((PrefixExpression) node).getOperator();
+    assertThat(originalOperator).isEqualTo(PrefixExpression.Operator.MINUS);
+
+    final Mutation mutation = new Mutation(Mutator.InvertNegatives, node);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
+  }
+
   @Test
   public void testMath01() {
 

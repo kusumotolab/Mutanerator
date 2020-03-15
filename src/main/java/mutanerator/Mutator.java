@@ -1,6 +1,7 @@
 package mutanerator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -103,6 +104,17 @@ public enum Mutator {
   InvertNegatives(false) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+
+      // 対象ノードのオペランドを取得
+      assert targetNode instanceof PrefixExpression : "illegal statement";
+      final PrefixExpression targetPrefix = (PrefixExpression) targetNode;
+      final Expression operand = targetPrefix.getOperand();
+
+      // 新しいノードを作成
+      final ASTNode rootNode = targetNode.getRoot();
+      final Expression newOperand = (Expression) ASTNode.copySubtree(rootNode.getAST(), operand);
+
+      rewrite.replace(targetPrefix, newOperand, null);
     }
   },
   Math(true) {

@@ -109,6 +109,11 @@ public class ProgramElementCollector extends ASTVisitor {
       this.mutationTargets.put(Mutator.Increments, node);
     }
 
+    // InvertNegatives変異の対象として登録
+    if (operator.equals(PrefixExpression.Operator.MINUS)) {
+      this.mutationTargets.put(Mutator.InvertNegatives, node);
+    }
+
     return super.visit(node);
   }
 
