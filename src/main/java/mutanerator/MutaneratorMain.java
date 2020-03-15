@@ -41,20 +41,13 @@ public class MutaneratorMain {
     final ProgramElementCollector collector = builder.build(targetFilePath);
     collector.perform();
     final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<Mutation> mutations = mutationTargets.getMutations();
 
     final Random random = new Random(config.getSeed());
     final int mutationsToBeGenerated = config.getMutants();
-    final List<Mutation> mutations = new ArrayList<>();
-    int duplicatedGeneration = 0;
-    while (mutations.size() < mutationsToBeGenerated && duplicatedGeneration < 10) {
-      final int randomValue = Math.abs(random.nextInt());
-      final Mutation mutation = mutationTargets.select(randomValue);
-      if (mutations.contains(mutation)) {
-        duplicatedGeneration++;
-      } else {
-        mutations.add(mutation);
-        duplicatedGeneration = 0;
-      }
+    while(mutationsToBeGenerated < mutations.size()){
+      final int index = random.nextInt(mutations.size());
+      mutations.remove(index);
     }
 
     final CompilationUnit astRootNode = collector.getASTRootNode();
