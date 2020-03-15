@@ -1,6 +1,11 @@
 package mutanerator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
+import org.eclipse.text.edits.TextEdit;
 
 public class Mutation {
 
@@ -26,11 +31,23 @@ public class Mutation {
     return this.mutator.hashCode() + this.node.hashCode();
   }
 
-  public void apply() {
-    this.mutator.mutate(this);
+  public String apply(final ASTNode rootNode, final String text) {
+
+    final ASTRewrite rewrite = ASTRewrite.create(rootNode.getAST());
+    this.mutator.manipulateAST(this.node, rewrite);
+
+    final Document document = new Document(text);
+    try {
+      final TextEdit edit = rewrite.rewriteAST(document, null);
+      edit.apply(document);
+    } catch (MalformedTreeException | BadLocationException e) {
+      throw new RuntimeException(e);
+    }
+
+    return document.get();
   }
 
   public void unapply() {
-    this.mutator.recover(this);
+//    this.mutator.recover(this);
   }
 }

@@ -1,545 +1,351 @@
 package mutanerator;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 public enum Mutator {
 
   ConditionalsBoundary(true) {
     @Override
-    void mutate(final Mutation mutation) {
-      assert mutation.node instanceof InfixExpression : "illegal statement";
-      final InfixExpression infix = (InfixExpression) mutation.node;
-      final InfixExpression.Operator operator = infix.getOperator();
-      ORIGINAL_INFIX_OPERATORS.put(mutation, operator);
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+
+      // 対象ノードの二項演算子を取得
+      assert targetNode instanceof InfixExpression : "illegal statement";
+      final InfixExpression targetInfix = (InfixExpression) targetNode;
+      final InfixExpression.Operator operator = targetInfix.getOperator();
+
+      // 新しいノードを作成
+      final ASTNode rootNode = targetNode.getRoot();
+      final InfixExpression newInfix = (InfixExpression) ASTNode.copySubtree(rootNode.getAST(),
+          targetInfix);
 
       // "<" -> "<="
       if (operator.equals(InfixExpression.Operator.LESS)) {
-        infix.setOperator(InfixExpression.Operator.LESS_EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.LESS_EQUALS);
       }
 
       // "<=" -> "<"
       else if (operator.equals(InfixExpression.Operator.LESS_EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.LESS);
+        newInfix.setOperator(InfixExpression.Operator.LESS);
       }
 
       // ">" -> ">="
       else if (operator.equals(InfixExpression.Operator.GREATER)) {
-        infix.setOperator(InfixExpression.Operator.GREATER_EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.GREATER_EQUALS);
       }
 
       // ">=" -> ">"
       else if (operator.equals(InfixExpression.Operator.GREATER_EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.GREATER);
+        newInfix.setOperator(InfixExpression.Operator.GREATER);
       }
-    }
 
-    @Override
-    void recover(final Mutation mutation) {
-      super.recoverInfixOperator(mutation);
+      rewrite.replace(targetNode, newInfix, null);
     }
   },
-  Increments(true) {
+  Increments(false) {
     @Override
-    void mutate(final Mutation mutation) {
-      if (mutation.node instanceof PostfixExpression) {
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
-        final PostfixExpression postfix = (PostfixExpression) mutation.node;
-        final PostfixExpression.Operator operator = postfix.getOperator();
-        ORIGINAL_POSTFIX_OPERATORS.put(mutation, operator);
+      if (targetNode instanceof PostfixExpression) {
+
+        final PostfixExpression targetPostfix = (PostfixExpression) targetNode;
+        final PostfixExpression.Operator operator = targetPostfix.getOperator();
+
+        // 新しいノードを作成
+        final ASTNode rootNode = targetNode.getRoot();
+        final PostfixExpression newPostfix = (PostfixExpression) ASTNode.copySubtree(
+            rootNode.getAST(),
+            targetPostfix);
 
         // "--" -> "++"
         if (operator.equals(PostfixExpression.Operator.DECREMENT)) {
-          postfix.setOperator(PostfixExpression.Operator.INCREMENT);
+          newPostfix.setOperator(PostfixExpression.Operator.INCREMENT);
         }
 
         // "++" -> "--"
         else if (operator.equals(PostfixExpression.Operator.INCREMENT)) {
-          postfix.setOperator(PostfixExpression.Operator.DECREMENT);
+          newPostfix.setOperator(PostfixExpression.Operator.DECREMENT);
         }
 
-      } else if (mutation.node instanceof PrefixExpression) {
+        rewrite.replace(targetNode, newPostfix, null);
 
-        final PrefixExpression prefix = (PrefixExpression) mutation.node;
-        final PrefixExpression.Operator operator = prefix.getOperator();
-        ORIGINAL_PREFIX_OPERATORS.put(mutation, operator);
+      } else if (targetNode instanceof PrefixExpression) {
+
+        final PrefixExpression targetPrefix = (PrefixExpression) targetNode;
+        final PrefixExpression.Operator operator = targetPrefix.getOperator();
+
+        // 新しいノードを作成
+        final ASTNode rootNode = targetNode.getRoot();
+        final PrefixExpression newPrefix = (PrefixExpression) ASTNode.copySubtree(
+            rootNode.getAST(),
+            targetPrefix);
 
         // "--" -> "++"
         if (operator.equals(PrefixExpression.Operator.DECREMENT)) {
-          prefix.setOperator(PrefixExpression.Operator.INCREMENT);
+          newPrefix.setOperator(PrefixExpression.Operator.INCREMENT);
         }
 
         // "++" -> "--"
         else if (operator.equals(PrefixExpression.Operator.INCREMENT)) {
-          prefix.setOperator(PrefixExpression.Operator.DECREMENT);
+          newPrefix.setOperator(PrefixExpression.Operator.DECREMENT);
         }
+
+        rewrite.replace(targetNode, newPrefix, null);
+
       } else {
         assert false : "illegal statement";
-      }
-    }
-
-    @Override
-    void recover(final Mutation mutation) {
-      if (mutation.node instanceof PostfixExpression) {
-        super.recoverPostfixOperator(mutation);
-      } else if (mutation.node instanceof PrefixExpression) {
-        super.recoverPrefixOperator(mutation);
       }
     }
   },
   InvertNegatives(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   Math(true) {
     @Override
-    void mutate(final Mutation mutation) {
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
-      assert mutation.node instanceof InfixExpression : "illegal statement";
-      final InfixExpression infix = (InfixExpression) mutation.node;
-      final InfixExpression.Operator operator = infix.getOperator();
-      ORIGINAL_INFIX_OPERATORS.put(mutation, operator);
+      // 対象ノードの二項演算子を取得
+      assert targetNode instanceof InfixExpression : "illegal statement";
+      final InfixExpression targetInfix = (InfixExpression) targetNode;
+      final InfixExpression.Operator operator = targetInfix.getOperator();
+
+      // 新しいノードを作成
+      final ASTNode rootNode = targetNode.getRoot();
+      final InfixExpression newInfix = (InfixExpression) ASTNode.copySubtree(rootNode.getAST(),
+          targetInfix);
 
       // "+" -> "-"
       if (operator.equals(InfixExpression.Operator.PLUS)) {
-        infix.setOperator(InfixExpression.Operator.MINUS);
+        newInfix.setOperator(InfixExpression.Operator.MINUS);
       }
 
       // "-" -> "+"
       else if (operator.equals(InfixExpression.Operator.MINUS)) {
-        infix.setOperator(InfixExpression.Operator.PLUS);
+        newInfix.setOperator(InfixExpression.Operator.PLUS);
       }
 
       // "*" -> "/"
       else if (operator.equals(InfixExpression.Operator.TIMES)) {
-        infix.setOperator(InfixExpression.Operator.DIVIDE);
+        newInfix.setOperator(InfixExpression.Operator.DIVIDE);
       }
 
       // "/" -> "*"
       else if (operator.equals(InfixExpression.Operator.DIVIDE)) {
-        infix.setOperator(InfixExpression.Operator.TIMES);
+        newInfix.setOperator(InfixExpression.Operator.TIMES);
       }
 
       // "%" -> "*"
       else if (operator.equals(InfixExpression.Operator.REMAINDER)) {
-        infix.setOperator(InfixExpression.Operator.TIMES);
+        newInfix.setOperator(InfixExpression.Operator.TIMES);
       }
 
       // "&" -> "|"
       else if (operator.equals(InfixExpression.Operator.AND)) {
-        infix.setOperator(InfixExpression.Operator.OR);
+        newInfix.setOperator(InfixExpression.Operator.OR);
       }
 
       // "|" -> "&"
       else if (operator.equals(InfixExpression.Operator.OR)) {
-        infix.setOperator(InfixExpression.Operator.AND);
+        newInfix.setOperator(InfixExpression.Operator.AND);
       }
 
       // "^" -> "&"
       else if (operator.equals(InfixExpression.Operator.XOR)) {
-        infix.setOperator(InfixExpression.Operator.AND);
+        newInfix.setOperator(InfixExpression.Operator.AND);
       }
 
       // "<<" -> ">>"
       else if (operator.equals(InfixExpression.Operator.LEFT_SHIFT)) {
-        infix.setOperator(InfixExpression.Operator.RIGHT_SHIFT_SIGNED);
+        newInfix.setOperator(InfixExpression.Operator.RIGHT_SHIFT_SIGNED);
       }
 
       // ">>" -> "<<"
       else if (operator.equals(InfixExpression.Operator.RIGHT_SHIFT_SIGNED)) {
-        infix.setOperator(InfixExpression.Operator.LEFT_SHIFT);
+        newInfix.setOperator(InfixExpression.Operator.LEFT_SHIFT);
       }
 
       // ">>>" -> "<<"
       else if (operator.equals(InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED)) {
-        infix.setOperator(InfixExpression.Operator.LEFT_SHIFT);
+        newInfix.setOperator(InfixExpression.Operator.LEFT_SHIFT);
       }
-    }
 
-    @Override
-    void recover(final Mutation mutation) {
-      super.recoverInfixOperator(mutation);
+      rewrite.replace(targetNode, newInfix, null);
     }
   },
 
   NegateConditionals(true) {
     @Override
-    void mutate(final Mutation mutation) {
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
-      assert mutation.node instanceof InfixExpression : "illegal statement";
-      final InfixExpression infix = (InfixExpression) mutation.node;
-      final InfixExpression.Operator operator = infix.getOperator();
-      ORIGINAL_INFIX_OPERATORS.put(mutation, operator);
+      // 対象ノードの二項演算子を取得
+      assert targetNode instanceof InfixExpression : "illegal statement";
+      final InfixExpression targetInfix = (InfixExpression) targetNode;
+      final InfixExpression.Operator operator = targetInfix.getOperator();
+
+      // 新しいノードを作成
+      final ASTNode rootNode = targetNode.getRoot();
+      final InfixExpression newInfix = (InfixExpression) ASTNode.copySubtree(rootNode.getAST(),
+          targetInfix);
 
       // "==" -> "!="
       if (operator.equals(InfixExpression.Operator.EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.NOT_EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.NOT_EQUALS);
       }
 
       // "!=" -> "=="
       else if (operator.equals(InfixExpression.Operator.NOT_EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.EQUALS);
       }
 
       // "<=" -> ">"
       else if (operator.equals(InfixExpression.Operator.LESS_EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.GREATER);
+        newInfix.setOperator(InfixExpression.Operator.GREATER);
       }
 
       // ">=" -> "<"
       else if (operator.equals(InfixExpression.Operator.GREATER_EQUALS)) {
-        infix.setOperator(InfixExpression.Operator.LESS);
+        newInfix.setOperator(InfixExpression.Operator.LESS);
       }
 
       // "<" -> ">="
       else if (operator.equals(InfixExpression.Operator.LESS)) {
-        infix.setOperator(InfixExpression.Operator.GREATER_EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.GREATER_EQUALS);
       }
 
       // ">" -> "<="
       else if (operator.equals(InfixExpression.Operator.GREATER)) {
-        infix.setOperator(InfixExpression.Operator.LESS_EQUALS);
+        newInfix.setOperator(InfixExpression.Operator.LESS_EQUALS);
       }
-    }
 
-    @Override
-    void recover(final Mutation mutation) {
-      super.recoverInfixOperator(mutation);
+      rewrite.replace(targetNode, newInfix, null);
     }
   },
   ReturnValues(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   VoidMetthodCalls(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ConstructorCalls(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   EmptyReturns(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   FalseReturns(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   InlineConstant(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   NullReturns(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   NonVoidMethodCalls(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   PrimitiveReturns(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   RemoveConditionals(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   RemoveIncrements(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   TrueReturns(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ExperimentalArgumentPropagation(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ExperimentalBigInteger(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ExperimentalMemberVariable(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ExperimentalNakedReceiver(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ExperimentalSwitch(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   Negation(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ArithmeticOperatorReplacement(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ArithmeticOperatorDeletion(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   ConstantReplacement(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   BitwiseOperator(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   RelationalOperatorReplacement(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
   UnaryOperatorInsertion(false) {
     @Override
-    void mutate(Mutation mutation) {
-      // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    void recover(Mutation mutation) {
-      // TODO Auto-generated method stub
-
+    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   };
-
   public final boolean available;
-  private static final Map<Mutation, InfixExpression.Operator> ORIGINAL_INFIX_OPERATORS =
-      new HashMap<>();
-  private static final Map<Mutation, PostfixExpression.Operator> ORIGINAL_POSTFIX_OPERATORS =
-      new HashMap<>();
-  private static final Map<Mutation, PrefixExpression.Operator> ORIGINAL_PREFIX_OPERATORS =
-      new HashMap<>();
 
   Mutator(final boolean available) {
     this.available = available;
@@ -549,76 +355,5 @@ public enum Mutator {
     return this.available;
   }
 
-  abstract void mutate(Mutation node);
-
-  abstract void recover(Mutation node);
-
-  /**
-   * 二項演算の演算子を元に戻す
-   *
-   * @param mutation
-   */
-  private void recoverInfixOperator(final Mutation mutation) {
-
-    // 変異が適用されていない場合は何もせずにメソッドを抜ける
-    if (!ORIGINAL_INFIX_OPERATORS.containsKey(mutation)) {
-      System.err.println(mutation.toString() + " is not applied.");
-      return;
-    }
-
-    // 演算子を元に戻す
-    assert mutation.node instanceof InfixExpression : "illegal statement";
-    final InfixExpression infix = (InfixExpression) mutation.node;
-    final InfixExpression.Operator operator = ORIGINAL_INFIX_OPERATORS.get(mutation);
-    infix.setOperator(operator);
-
-    // 変異が適用された演算子の群から，元に戻した演算子を取り除く
-    ORIGINAL_INFIX_OPERATORS.remove(mutation);
-  }
-
-  /**
-   * PostfixExpressionの演算子を元に戻す
-   *
-   * @param mutation
-   */
-  private void recoverPostfixOperator(final Mutation mutation) {
-
-    // 変異が適用されていない場合は何もせずにメソッドを抜ける
-    if (!ORIGINAL_POSTFIX_OPERATORS.containsKey(mutation)) {
-      System.err.println(mutation.toString() + " is not applied.");
-      return;
-    }
-
-    // 演算子を元に戻す
-    assert mutation.node instanceof PostfixExpression : "illegal statement";
-    final PostfixExpression infix = (PostfixExpression) mutation.node;
-    final PostfixExpression.Operator operator = ORIGINAL_POSTFIX_OPERATORS.get(mutation);
-    infix.setOperator(operator);
-
-    // 変異が適用された演算子の群から，元に戻した演算子を取り除く
-    ORIGINAL_POSTFIX_OPERATORS.remove(mutation);
-  }
-
-  /**
-   * PrefixExpressionの演算子を元に戻す
-   *
-   * @param mutation
-   */
-  private void recoverPrefixOperator(final Mutation mutation) {
-
-    // 変異が適用されていない場合は何もせずにメソッドを抜ける
-    if (!ORIGINAL_PREFIX_OPERATORS.containsKey(mutation)) {
-      System.err.println(mutation.toString() + " is not applied.");
-      return;
-    }
-
-    // 演算子を元に戻す
-    assert mutation.node instanceof PrefixExpression : "illegal statement";
-    final PrefixExpression infix = (PrefixExpression) mutation.node;
-    final PrefixExpression.Operator operator = ORIGINAL_PREFIX_OPERATORS.get(mutation);
-    infix.setOperator(operator);
-
-    // 変異が適用された演算子の群から，元に戻した演算子を取り除く
-    ORIGINAL_PREFIX_OPERATORS.remove(mutation);
-  }
+  abstract void manipulateAST(ASTNode targetNode, ASTRewrite rewrite);
 }

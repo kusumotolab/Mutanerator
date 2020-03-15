@@ -10,7 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.MalformedTreeException;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -52,10 +60,9 @@ public class MutaneratorMain {
     final CompilationUnit astRootNode = collector.getASTRootNode();
     final Map<Mutation, String> mutationTexts = new HashMap<>();
     for (final Mutation mutation : mutations) {
-      mutation.apply();
-      final String mutationText = astRootNode.toString();
+      final ASTNode copiedRootNode = ASTNode.copySubtree(astRootNode.getAST(), astRootNode);
+      final String mutationText = mutation.apply(copiedRootNode, builder.getFileContent());
       mutationTexts.put(mutation, mutationText);
-      mutation.unapply();
     }
 
     // 生成したミュータント（変異プログラム）を出力する

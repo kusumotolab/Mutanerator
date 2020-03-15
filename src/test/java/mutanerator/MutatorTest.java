@@ -20,8 +20,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testConditionalBoundary(text, InfixExpression.Operator.LESS,
-        InfixExpression.Operator.LESS_EQUALS);
+    final String expectedText = //
+        "class Test01{" + //
+            "  boolean method01(int a, int b){" + //
+            "    return a <= b;" + //
+            "  }" + //
+            "}";
+
+    this.testConditionalBoundary(text, InfixExpression.Operator.LESS, expectedText);
   }
 
   @Test
@@ -34,8 +40,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testConditionalBoundary(text, InfixExpression.Operator.LESS_EQUALS,
-        InfixExpression.Operator.LESS);
+    final String expectedText = //
+        "class Test02{" + //
+            "  boolean method02(int a, int b){" + //
+            "    return a < b;" + //
+            "  }" + //
+            "}";
+
+    this.testConditionalBoundary(text, InfixExpression.Operator.LESS_EQUALS, expectedText);
   }
 
   @Test
@@ -48,8 +60,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testConditionalBoundary(text, InfixExpression.Operator.GREATER,
-        InfixExpression.Operator.GREATER_EQUALS);
+    final String expectedText = //
+        "class Test03{" + //
+            "  boolean method03(int a, int b){" + //
+            "    return a >= b;" + //
+            "  }" + //
+            "}";
+
+    this.testConditionalBoundary(text, InfixExpression.Operator.GREATER, expectedText);
   }
 
   @Test
@@ -62,13 +80,19 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testConditionalBoundary(text, InfixExpression.Operator.GREATER_EQUALS,
-        InfixExpression.Operator.GREATER);
+    final String expectedText = //
+        "class Test04{" + //
+            "  boolean method04(int a, int b){" + //
+            "    return a > b;" + //
+            "  }" + //
+            "}";
+
+    this.testConditionalBoundary(text, InfixExpression.Operator.GREATER_EQUALS, expectedText);
   }
 
   private void testConditionalBoundary(final String text,
       final InfixExpression.Operator assumedOriginalOperator,
-      final InfixExpression.Operator assumedMutatedOperator) {
+      final String expectedText) {
 
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
     final ProgramElementCollector collector = builder.build(text);
@@ -84,13 +108,9 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.ConditionalsBoundary, node);
-    mutation.mutator.mutate(mutation);
-    final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
-    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
-
-    mutation.mutator.recover(mutation);
-    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
-    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
   }
 
   @Test
@@ -103,8 +123,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testIncrements0A(text, PostfixExpression.Operator.INCREMENT,
-        PostfixExpression.Operator.DECREMENT);
+    final String expectedText = //
+        "class Test01{" + //
+            "  int method01(int a){" + //
+            "    return a--;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0A(text, PostfixExpression.Operator.INCREMENT, expectedText);
   }
 
   @Test
@@ -117,8 +143,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testIncrements0A(text, PostfixExpression.Operator.DECREMENT,
-        PostfixExpression.Operator.INCREMENT);
+    final String expectedText = //
+        "class Test02{" + //
+            "  int method02(int a){" + //
+            "    return a++;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0A(text, PostfixExpression.Operator.DECREMENT, expectedText);
   }
 
   @Test
@@ -131,8 +163,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testIncrements0B(text, PrefixExpression.Operator.INCREMENT,
-        PrefixExpression.Operator.DECREMENT);
+    final String expectedText = //
+        "class Test03{" + //
+            "  int method03(int a){" + //
+            "    return --a;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0B(text, PrefixExpression.Operator.INCREMENT, expectedText);
   }
 
   @Test
@@ -145,13 +183,19 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testIncrements0B(text, PrefixExpression.Operator.DECREMENT,
-        PrefixExpression.Operator.INCREMENT);
+    final String expectedText = //
+        "class Test04{" + //
+            "  int method04(int a){" + //
+            "    return ++a;" + //
+            "  }" + //
+            "}";
+
+    this.testIncrements0B(text, PrefixExpression.Operator.DECREMENT, expectedText);
   }
 
   private void testIncrements0A(final String text,
       final PostfixExpression.Operator assumedOriginalOperator,
-      final PostfixExpression.Operator assumedMutatedOperator) {
+      final String expectedText) {
 
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
     final ProgramElementCollector collector = builder.build(text);
@@ -167,19 +211,14 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.Increments, node);
-    mutation.mutator.mutate(mutation);
-
-    final PostfixExpression.Operator mutatedOperator = ((PostfixExpression) node).getOperator();
-    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
-
-    mutation.mutator.recover(mutation);
-    final PostfixExpression.Operator recoveredOperator = ((PostfixExpression) node).getOperator();
-    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
   }
 
   private void testIncrements0B(final String text,
       final PrefixExpression.Operator assumedOriginalOperator,
-      final PrefixExpression.Operator assumedMutatedOperator) {
+      final String expectedText) {
 
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
     final ProgramElementCollector collector = builder.build(text);
@@ -195,14 +234,9 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.Increments, node);
-    mutation.mutator.mutate(mutation);
-
-    final PrefixExpression.Operator mutatedOperator = ((PrefixExpression) node).getOperator();
-    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
-
-    mutation.mutator.recover(mutation);
-    final PrefixExpression.Operator recoveredOperator = ((PrefixExpression) node).getOperator();
-    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
   }
 
   @Test
@@ -215,7 +249,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.PLUS, InfixExpression.Operator.MINUS);
+    final String expectedText = //
+        "class Test01{" + //
+            "  int method01(int a, int b){" + //
+            "    return a - b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.PLUS, expectedText);
   }
 
   @Test
@@ -228,7 +269,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.MINUS, InfixExpression.Operator.PLUS);
+    final String expectedText = //
+        "class Test02{" + //
+            "  int method02(int a, int b){" + //
+            "    return a + b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.MINUS, expectedText);
   }
 
   @Test
@@ -241,7 +289,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.TIMES, InfixExpression.Operator.DIVIDE);
+    final String expectedText = //
+        "class Test03{" + //
+            "  int method03(int a, int b){" + //
+            "    return a / b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.TIMES, expectedText);
   }
 
   @Test
@@ -254,7 +309,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.DIVIDE, InfixExpression.Operator.TIMES);
+    final String expectedText = //
+        "class Test04{" + //
+            "  int method04(int a, int b){" + //
+            "    return a * b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.DIVIDE, expectedText);
   }
 
   @Test
@@ -267,7 +329,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.REMAINDER, InfixExpression.Operator.TIMES);
+    final String expectedText = //
+        "class Test05{" + //
+            "  int method05(int a, int b){" + //
+            "    return a * b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.REMAINDER, expectedText);
   }
 
   @Test
@@ -280,7 +349,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.AND, InfixExpression.Operator.OR);
+    final String expectedText = //
+        "class Test06{" + //
+            "  boolean method06(int a, int b){" + //
+            "    return a | b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.AND, expectedText);
   }
 
   @Test
@@ -293,7 +369,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.OR, InfixExpression.Operator.AND);
+    final String expectedText = //
+        "class Test07{" + //
+            "  boolean method07(int a, int b){" + //
+            "    return a & b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.OR, expectedText);
   }
 
   @Test
@@ -306,7 +389,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.XOR, InfixExpression.Operator.AND);
+    final String expectedText = //
+        "class Test08{" + //
+            "  boolean method08(int a, int b){" + //
+            "    return a & b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.XOR, expectedText);
   }
 
   @Test
@@ -319,8 +409,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.LEFT_SHIFT,
-        InfixExpression.Operator.RIGHT_SHIFT_SIGNED);
+    final String expectedText = //
+        "class Test09{" + //
+            "  byte method09(byte a, int b){" + //
+            "    return a >> b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.LEFT_SHIFT, expectedText);
   }
 
   @Test
@@ -333,8 +429,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.RIGHT_SHIFT_SIGNED,
-        InfixExpression.Operator.LEFT_SHIFT);
+    final String expectedText = //
+        "class Test10{" + //
+            "  byte method10(byte a, int b){" + //
+            "    return a << b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.RIGHT_SHIFT_SIGNED, expectedText);
   }
 
   @Test
@@ -347,12 +449,18 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testMath(text, InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED,
-        InfixExpression.Operator.LEFT_SHIFT);
+    final String expectedText = //
+        "class Test11{" + //
+            "  byte method11(byte a, int b){" + //
+            "    return a << b;" + //
+            "  }" + //
+            "}";
+
+    this.testMath(text, InfixExpression.Operator.RIGHT_SHIFT_UNSIGNED, expectedText);
   }
 
   private void testMath(final String text, final InfixExpression.Operator assumedOriginalOperator,
-      final InfixExpression.Operator assumedMutatedOperator) {
+      final String expectedText) {
 
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
     final ProgramElementCollector collector = builder.build(text);
@@ -368,14 +476,9 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.Math, node);
-    mutation.mutator.mutate(mutation);
-
-    final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
-    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
-
-    mutation.mutator.recover(mutation);
-    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
-    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
   }
 
   @Test
@@ -388,8 +491,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.EQUALS,
-        InfixExpression.Operator.NOT_EQUALS);
+    final String expectedText = //
+        "class Test01{" + //
+            "  boolean method01(int a, int b){" + //
+            "    return a != b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.EQUALS, expectedText);
   }
 
   @Test
@@ -402,8 +511,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.NOT_EQUALS,
-        InfixExpression.Operator.EQUALS);
+    final String expectedText = //
+        "class Test02{" + //
+            "  boolean method02(int a, int b){" + //
+            "    return a == b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.NOT_EQUALS, expectedText);
   }
 
   @Test
@@ -416,8 +531,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.LESS_EQUALS,
-        InfixExpression.Operator.GREATER);
+    final String expectedText = //
+        "class Test03{" + //
+            "  boolean method03(int a, int b){" + //
+            "    return a > b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.LESS_EQUALS, expectedText);
   }
 
   @Test
@@ -430,8 +551,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.GREATER_EQUALS,
-        InfixExpression.Operator.LESS);
+    final String expectedText = //
+        "class Test04{" + //
+            "  boolean method04(int a, int b){" + //
+            "    return a < b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.GREATER_EQUALS, expectedText);
   }
 
   @Test
@@ -444,8 +571,14 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.LESS,
-        InfixExpression.Operator.GREATER_EQUALS);
+    final String expectedText = //
+        "class Test05{" + //
+            "  boolean method05(int a, int b){" + //
+            "    return a >= b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.LESS, expectedText);
   }
 
   @Test
@@ -458,13 +591,19 @@ public class MutatorTest {
             "  }" + //
             "}";
 
-    this.testNegateConditionals(text, InfixExpression.Operator.GREATER,
-        InfixExpression.Operator.LESS_EQUALS);
+    final String expectedText = //
+        "class Test06{" + //
+            "  boolean method06(int a, int b){" + //
+            "    return a <= b;" + //
+            "  }" + //
+            "}";
+
+    this.testNegateConditionals(text, InfixExpression.Operator.GREATER, expectedText);
   }
 
   private void testNegateConditionals(final String text,
       final InfixExpression.Operator assumedOriginalOperator,
-      final InfixExpression.Operator assumedMutatedOperator) {
+      final String expectedText) {
 
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
     final ProgramElementCollector collector = builder.build(text);
@@ -480,13 +619,8 @@ public class MutatorTest {
     assertThat(originalOperator).isEqualTo(assumedOriginalOperator);
 
     final Mutation mutation = new Mutation(Mutator.NegateConditionals, node);
-    mutation.mutator.mutate(mutation);
-
-    final InfixExpression.Operator mutatedOperator = ((InfixExpression) node).getOperator();
-    assertThat(mutatedOperator).isEqualTo(assumedMutatedOperator);
-
-    mutation.mutator.recover(mutation);
-    final InfixExpression.Operator recoveredOperator = ((InfixExpression) node).getOperator();
-    assertThat(recoveredOperator).isEqualTo(assumedOriginalOperator);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
   }
 }
