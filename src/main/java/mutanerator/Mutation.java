@@ -7,6 +7,13 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
+/**
+ * This class represents mutation.
+ * A mutation consists of where a given program is changed and how it is changed.
+ *
+ * ミューテーション（変異）を表すクラスである．
+ * 変異は，変更の箇所と変候の方法（変異子）で表される．
+ */
 public class Mutation {
 
   final public Mutator mutator;

@@ -8,6 +8,13 @@ import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
+/**
+ * This Class represent mutator.
+ * A mutator means an operation how a given program is changed.
+ *
+ * ミューテイター（変異子）を表すクラスである．
+ * 変異子とは，変更操作を表す言葉である．
+ */
 public enum Mutator {
 
   ConditionalsBoundary(true) {
