@@ -3,7 +3,6 @@ package mutanerator;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.kohsuke.args4j.Option;
 
 public class MutaneratorConfig {
@@ -14,6 +13,8 @@ public class MutaneratorConfig {
   private Path outputDir = Paths.get(".", "mutations");
   private long seed = 0l;
   private int mutants = 100;
+  private int minimumMutations = 1;
+  private int maximumMutations = 1;
   private int startLine = 1;
   private int endLine = Integer.MAX_VALUE;
 
@@ -41,6 +42,17 @@ public class MutaneratorConfig {
       System.exit(1);
     }
     this.mutants = mutants;
+  }
+
+  @Option(name = "-u", required = false, aliases = "--mutations", metaVar = "<number>",
+      usage = "mutations in each mutants")
+  public void setMutations(final int mutations) {
+    if (mutations < 1) {
+      System.err.println("option \"-u\" must be larger than 0.");
+      System.exit(1);
+    }
+    this.maximumMutations = mutations;
+    this.minimumMutations = mutations;
   }
 
   @Option(name = "-s", required = false, aliases = "--start-line", metaVar = "<line>",
@@ -83,6 +95,14 @@ public class MutaneratorConfig {
 
   public int getMutants() {
     return this.mutants;
+  }
+
+  public int getMinimumMutations() {
+    return this.minimumMutations;
+  }
+
+  public int getMaximumMutations() {
+    return this.maximumMutations;
   }
 
   public int getStartLine() {
