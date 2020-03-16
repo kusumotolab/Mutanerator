@@ -1,19 +1,27 @@
 package mutanerator;
 
+import java.util.Stack;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.Type;
 
 public class ProgramElementCollector extends ASTVisitor {
 
   private final CompilationUnit astRootNode;
   private final MutationTargets mutationTargets;
+  private final Stack<Boolean> flagsForPrimitiveReturns = new Stack<>();
 
   public ProgramElementCollector(final CompilationUnit astRootNode) {
     this.astRootNode = astRootNode;
@@ -43,7 +51,7 @@ public class ProgramElementCollector extends ASTVisitor {
     final Expression expression = node.getExpression();
 
     // VoidMethodCalls変異の対象として登録
-    if(expression instanceof MethodInvocation){
+    if (expression instanceof MethodInvocation) {
       this.mutationTargets.put(Mutator.VoidMethodCalls, node);
     }
 
@@ -96,6 +104,43 @@ public class ProgramElementCollector extends ASTVisitor {
   }
 
   @Override
+  public boolean visit(final MethodDeclaration node) {
+
+    final Type returnType = node.getReturnType2();
+    final boolean flagForPR = this.fitForPrimitiveReturns(returnType);
+    this.flagsForPrimitiveReturns.push(flagForPR);
+
+    return super.visit(node);
+  }
+
+  @Override
+  public void endVisit(final MethodDeclaration node) {
+    super.endVisit(node);
+    this.flagsForPrimitiveReturns.pop();
+  }
+
+  private boolean fitForPrimitiveReturns(final Type returnType) {
+
+    if (!(returnType instanceof PrimitiveType)) {
+      return false;
+    }
+
+    final PrimitiveType primitiveReturnType = (PrimitiveType) returnType;
+    final Code code = primitiveReturnType.getPrimitiveTypeCode();
+    switch (code.toString()) {
+      case "int":
+      case "short":
+      case "long":
+      case "char":
+      case "float":
+      case "double":
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  @Override
   public boolean visit(final PostfixExpression node) {
 
     // 変異の範囲外である場合は何もしない
@@ -133,6 +178,43 @@ public class ProgramElementCollector extends ASTVisitor {
     // InvertNegatives変異の対象として登録
     if (operator.equals(PrefixExpression.Operator.MINUS)) {
       this.mutationTargets.put(Mutator.InvertNegatives, node);
+    }
+
+    return super.visit(node);
+  }
+
+  @Override
+  public boolean visit(final ReturnStatement node) {
+
+    // 変異の範囲外である場合は何もしない
+    if (!this.inTargetRange(node)) {
+      return super.visit(node);
+    }
+
+    // PrimitiveReturns の対象メソッドの場合
+    if (this.flagsForPrimitiveReturns.peek()) {
+
+      final Expression expression = node.getExpression();
+
+      // expression が NumberLiteral の場合のみ対象
+      if (null != expression && expression instanceof NumberLiteral) {
+
+        // return 文のオペランドがすでに0の場合は PrimitiveReturns の対象にならない
+        final String token = ((NumberLiteral) expression).getToken();
+        switch (token.toUpperCase()) {
+          case "0":
+          case "0D":
+          case "0F":
+          case "0L":
+          case "0.0":
+          case "0.0D":
+          case "0.0F":
+            break;
+          default:
+            this.mutationTargets.put(Mutator.PrimitiveReturns, expression);
+            break;
+        }
+      }
     }
 
     return super.visit(node);

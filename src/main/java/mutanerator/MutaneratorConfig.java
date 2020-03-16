@@ -55,6 +55,26 @@ public class MutaneratorConfig {
     this.minimumMutations = mutations;
   }
 
+  @Option(name = "--max-mutations", required = false, metaVar = "<number>",
+      usage = "maximum mutations in each mutants")
+  public void setMaximumMutations(final int mutations) {
+    if (mutations < 1) {
+      System.err.println("option \"--max-mutations\" must be larger than 0.");
+      System.exit(1);
+    }
+    this.maximumMutations = mutations;
+  }
+
+  @Option(name = "--min-mutations", required = false, metaVar = "<number>",
+      usage = "minimum mutations in each mutants")
+  public void setMinimumMutations(final int mutations) {
+    if (mutations < 1) {
+      System.err.println("option \"--min-mutations\" must be larger than 0.");
+      System.exit(1);
+    }
+    this.minimumMutations = mutations;
+  }
+
   @Option(name = "-s", required = false, aliases = "--start-line", metaVar = "<line>",
       usage = "start line of mutation target range")
   public void setStartLine(final int startLine) {

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +40,13 @@ public class MutaneratorMain {
     // ミュータントを生成する
     final int minimumMutations = config.getMinimumMutations();
     final int maximumMutations = config.getMaximumMutations();
-    final List<Mutant> mutants = Mutant.generateMutants(mutations, minimumMutations, maximumMutations);
+    if (maximumMutations < minimumMutations) {
+      System.err.println(
+          "specified minimum mutations per mutant is larger than maximum mutations.");
+      System.exit(1);
+    }
+    final List<Mutant> mutants = Mutant.generateMutants(mutations, minimumMutations,
+        maximumMutations);
 
     // thinning out if identified mutants are too much
     // 生成したミュータントが多すぎる場合は間引く

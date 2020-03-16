@@ -710,4 +710,78 @@ public class MutatorTest {
     final String mutatedText = mutation.apply(rootNode, text);
     assertThat(mutatedText).isEqualTo(expectedText);
   }
+
+  @Test
+  public void testPrimitiveReturns01() {
+
+    final String text = //
+        "class Test01{" + //
+            "  int method01(){" + //
+            "    return 1;" + //
+            "  }" + //
+            "}";
+
+    final String expectedText = //
+        "class Test01{" + //
+            "  int method01(){" + //
+            "    return 0;" + //
+            "  }" + //
+            "}";
+
+    this.testPrimitiveReturns(text, expectedText);
+  }
+
+  @Test
+  public void testPrimitiveReturns02() {
+
+    final String text = //
+        "class Test02{" + //
+            "  int method02(){" + //
+            "    return 0;" + //
+            "  }" + //
+            "}";
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.PrimitiveReturns);
+    assertThat(targetNodes).hasSize(0);
+  }
+
+  @Test
+  public void testPrimitiveReturns03() {
+
+    final String text = //
+        "class Test03{" + //
+            "  Integer method03(){" + //
+            "    return new Integer(0);" + //
+            "  }" + //
+            "}";
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.PrimitiveReturns);
+    assertThat(targetNodes).hasSize(0);
+  }
+
+  private void testPrimitiveReturns(final String text, final String expectedText) {
+
+    final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
+    final ProgramElementCollector collector = builder.build(text);
+    collector.perform();
+    final MutationTargets mutationTargets = collector.getMutationTargets();
+    final List<ASTNode> targetNodes = mutationTargets.getTargetNodes(Mutator.PrimitiveReturns);
+    assertThat(targetNodes).hasSize(1);
+
+    final ASTNode node = targetNodes.get(0);
+    assertThat(node).isInstanceOf(Expression.class);
+
+    final Mutation mutation = new Mutation(Mutator.PrimitiveReturns, node);
+    final ASTNode rootNode = node.getRoot();
+    final String mutatedText = mutation.apply(rootNode, text);
+    assertThat(mutatedText).isEqualTo(expectedText);
+  }
 }

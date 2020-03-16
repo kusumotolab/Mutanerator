@@ -1,9 +1,11 @@
 package mutanerator;
 
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
@@ -291,9 +293,12 @@ public enum Mutator {
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
-  PrimitiveReturns(false) {
+  PrimitiveReturns(true) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      final AST ast = rewrite.getAST();
+      final NumberLiteral newNumberLiteral = ast.newNumberLiteral("0");
+      rewrite.replace(targetNode, newNumberLiteral, null);
     }
   },
   RemoveConditionals(false) {
