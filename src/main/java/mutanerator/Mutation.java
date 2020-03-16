@@ -53,8 +53,4 @@ public class Mutation {
 
     return document.get();
   }
-
-  public void unapply() {
-//    this.mutator.recover(this);
-  }
 }

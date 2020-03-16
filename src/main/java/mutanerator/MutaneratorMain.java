@@ -28,6 +28,7 @@ public class MutaneratorMain {
       System.exit(1);
     }
 
+    // getting a list of mutations from a given program
     // ミューテーションの一覧を得る
     final Path targetFilePath = config.getPath();
     final ProgramElementCollectorBuilder builder = new ProgramElementCollectorBuilder();
@@ -36,11 +37,13 @@ public class MutaneratorMain {
     final MutationTargets mutationTargets = collector.getMutationTargets();
     final List<Mutation> mutations = mutationTargets.getMutations();
 
+    // identifying possible mutants by using the mutations
     // ミュータントを生成する
     final int minimumMutations = config.getMinimumMutations();
     final int maximumMutations = config.getMaximumMutations();
     final List<Mutant> mutants = Mutant.generateMutants(mutations, minimumMutations, maximumMutations);
 
+    // thinning out if identified mutants are too much
     // 生成したミュータントが多すぎる場合は間引く
     final Random random = new Random(config.getSeed());
     final int mutationsToBeGenerated = config.getMutants();
@@ -49,6 +52,8 @@ public class MutaneratorMain {
       mutants.remove(index);
     }
 
+    // generating texts of mutants
+    // ミュータントのテキストを生成する
     final CompilationUnit astRootNode = collector.getASTRootNode();
     final Map<Mutant, String> mutantTexts = new HashMap<>();
     for (final Mutant mutant : mutants) {
@@ -57,6 +62,7 @@ public class MutaneratorMain {
       mutantTexts.put(mutant, mutantText);
     }
 
+    // outputting generated texts
     // 生成したミュータント（変異プログラム）を出力する
     final Path outputDir = config.getOutputDir();
     createDirectory(outputDir);
