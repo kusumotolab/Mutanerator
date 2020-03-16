@@ -39,3 +39,16 @@ application {
     // Define the main class for the application.
     mainClassName = 'mutanerator.App'
 }
+
+jar {
+    manifest {
+        attributes "Main-Class": "mutanerator.MutaneratorMain"
+    }
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    } {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+}
