@@ -1,5 +1,6 @@
 package mutanerator;
 
+import static java.lang.System.exit;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -17,6 +18,7 @@ public class MutaneratorConfig {
   private int maximumMutations = 1;
   private int startLine = 1;
   private int endLine = Integer.MAX_VALUE;
+  private JavaVersion javaVersion = JavaVersion.V1_8;
 
   @Option(name = "-f", required = true, aliases = "--file-path", metaVar = "<path>",
       usage = "path of target file for mutation")
@@ -101,6 +103,17 @@ public class MutaneratorConfig {
     this.outputDir = Paths.get(dir);
   }
 
+  @Option(name = "-j", required = false, aliases = "--java-version", metaVar = "<version>",
+      usage = "java version of target source files")
+  public void setJavaVersion(final String versionText) {
+    this.javaVersion = JavaVersion.get(versionText);
+    if (null == this.javaVersion) {
+      System.err.println("an invalid value is specified for option \"-j\".");
+      System.err.println("specify Java version in \"1.4\" ~ \"1.13\".");
+      exit(1);
+    }
+  }
+
   public Path getPath() {
     return this.path;
   }
@@ -131,5 +144,9 @@ public class MutaneratorConfig {
 
   public int getEndLine() {
     return this.endLine;
+  }
+
+  public JavaVersion getJavaVersion() {
+    return this.javaVersion;
   }
 }

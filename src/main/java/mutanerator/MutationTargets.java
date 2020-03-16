@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 
 public class MutationTargets {
@@ -29,12 +28,12 @@ public class MutationTargets {
         .add(candidate);
   }
 
-  public List<Mutation> getMutations(){
+  public List<Mutation> getMutations() {
     final List<Mutation> mutations = new ArrayList<>();
-    for(final Entry<Mutator, List<ASTNode>> entry: this.mutators.entrySet()){
+    for (final Entry<Mutator, List<ASTNode>> entry : this.mutators.entrySet()) {
       final Mutator mutator = entry.getKey();
       final List<ASTNode> nodes = entry.getValue();
-      for(final ASTNode node : nodes){
+      for (final ASTNode node : nodes) {
         final Mutation mutation = new Mutation(mutator, node);
         mutations.add(mutation);
       }

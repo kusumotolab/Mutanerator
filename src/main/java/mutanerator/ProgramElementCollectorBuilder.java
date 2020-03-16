@@ -5,13 +5,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class ProgramElementCollectorBuilder {
 
@@ -59,12 +56,8 @@ public class ProgramElementCollectorBuilder {
 
   private ASTParser createNewParser() {
     ASTParser parser = ASTParser.newParser(AST.JLS13);
-
-    @SuppressWarnings("unchecked") final Map<String, String> options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
-    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-    options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-    options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+    final JavaVersion javaVersion = MutaneratorConfig.SINGLETON.getJavaVersion();
+    final Map<String, String> options = javaVersion.getOptions();
     parser.setCompilerOptions(options);
 
     // TODO: Bindingが必要か検討
@@ -75,7 +68,7 @@ public class ProgramElementCollectorBuilder {
     return parser;
   }
 
-  public String getFileContent(){
+  public String getFileContent() {
     return this.fileContent;
   }
 }
