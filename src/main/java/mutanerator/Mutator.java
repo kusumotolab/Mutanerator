@@ -56,7 +56,7 @@ public enum Mutator {
       rewrite.replace(targetNode, newInfix, null);
     }
   },
-  Increments(false) {
+  Increments(true) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
@@ -111,7 +111,7 @@ public enum Mutator {
       }
     }
   },
-  InvertNegatives(false) {
+  InvertNegatives(true) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
@@ -252,7 +252,7 @@ public enum Mutator {
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
     }
   },
-  VoidMethodCalls(false) {
+  VoidMethodCalls(true) {
     @Override
     void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 

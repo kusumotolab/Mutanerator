@@ -15,7 +15,7 @@ public class MutationTargets {
   public MutationTargets() {
     this.mutators = new HashMap<>();
     for (final Mutator mutator : Mutator.values()) {
-      this.mutators.put(mutator, new ArrayList<ASTNode>());
+      this.mutators.put(mutator, new ArrayList<>());
     }
   }
 
@@ -32,6 +32,9 @@ public class MutationTargets {
     final List<Mutation> mutations = new ArrayList<>();
     for (final Entry<Mutator, List<ASTNode>> entry : this.mutators.entrySet()) {
       final Mutator mutator = entry.getKey();
+      if(!mutator.isAvailable()){
+        continue;
+      }
       final List<ASTNode> nodes = entry.getValue();
       for (final ASTNode node : nodes) {
         final Mutation mutation = new Mutation(mutator, node);
