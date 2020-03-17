@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import com.google.common.base.Strings;
 
 public class MutaneratorMain {
 
@@ -72,11 +73,14 @@ public class MutaneratorMain {
     final Path outputDir = config.getOutputDir();
     createDirectory(outputDir);
     final Path targetFileName = targetFilePath.getFileName();
+    final int digitNumber = Integer.toString(mutants.size() + 1)
+        .length();
     for (int index = 0; index < mutants.size(); index++) {
-      final String text = mutantTexts.get(mutants.get(index));
-      final Path mutantDir = outputDir.resolve(Integer.toString(index));
+      final String mutantDirName = Strings.padStart(Integer.toString(index + 1), digitNumber, '0');
+      final Path mutantDir = outputDir.resolve(mutantDirName);
       createDirectory(mutantDir);
       final Path mutantFilePath = mutantDir.resolve(targetFileName);
+      final String text = mutantTexts.get(mutants.get(index));
       try {
         Files.writeString(mutantFilePath, text, StandardCharsets.UTF_8);
       } catch (final IOException e) {
