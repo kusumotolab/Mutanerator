@@ -98,7 +98,8 @@ public class MutaneratorMain {
       for (int index = 0; index < mutants.size(); index++) {
         final Mutant mutant = mutants.get(index);
         for (final String mutationText : mutant.getLog()) {
-          lines.add((index + 1) + ", " + mutationText);
+          final String mutantID = Strings.padStart(Integer.toString(index + 1), digitNumber, '0');
+          lines.add(mutantID + ", " + mutationText);
         }
       }
       try {
