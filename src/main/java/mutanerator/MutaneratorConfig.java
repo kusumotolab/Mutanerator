@@ -12,6 +12,7 @@ public class MutaneratorConfig {
 
   private Path path = null;
   private Path outputDir = Paths.get(".", "mutations");
+  private Path logFile = null;
   private long seed = 0l;
   private int mutants = 100;
   private int minimumMutations = 1;
@@ -28,6 +29,12 @@ public class MutaneratorConfig {
       System.err.println("file path specified by option \"-f\" is not readable.");
       System.exit(1);
     }
+  }
+
+  @Option(name = "-l", required = true, aliases = "--log-file", metaVar = "<path>",
+      usage = "path of log file")
+  public void setLogFile(final String stringPath) {
+    this.logFile = Paths.get(stringPath);
   }
 
   @Option(name = "-r", required = false, aliases = "--random-seed", metaVar = "<value>",
@@ -116,6 +123,10 @@ public class MutaneratorConfig {
 
   public Path getPath() {
     return this.path;
+  }
+
+  public Path getLogFile() {
+    return this.logFile;
   }
 
   public Path getOutputDir() {

@@ -21,7 +21,7 @@ public enum Mutator {
 
   ConditionalsBoundary(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       // 対象ノードの二項演算子を取得
       assert targetNode instanceof InfixExpression : "illegal statement";
@@ -54,11 +54,12 @@ public enum Mutator {
       }
 
       rewrite.replace(targetNode, newInfix, null);
+      return newInfix;
     }
   },
   Increments(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       if (targetNode instanceof PostfixExpression) {
 
@@ -82,6 +83,7 @@ public enum Mutator {
         }
 
         rewrite.replace(targetNode, newPostfix, null);
+        return newPostfix;
 
       } else if (targetNode instanceof PrefixExpression) {
 
@@ -105,15 +107,17 @@ public enum Mutator {
         }
 
         rewrite.replace(targetNode, newPrefix, null);
+        return newPrefix;
 
       } else {
         assert false : "illegal statement";
+        return null;
       }
     }
   },
   InvertNegatives(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       // 対象ノードのオペランドを取得
       assert targetNode instanceof PrefixExpression : "illegal statement";
@@ -125,11 +129,12 @@ public enum Mutator {
       final Expression newOperand = (Expression) ASTNode.copySubtree(rootNode.getAST(), operand);
 
       rewrite.replace(targetPrefix, newOperand, null);
+      return newOperand;
     }
   },
   Math(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       // 対象ノードの二項演算子を取得
       assert targetNode instanceof InfixExpression : "illegal statement";
@@ -197,12 +202,13 @@ public enum Mutator {
       }
 
       rewrite.replace(targetNode, newInfix, null);
+      return newInfix;
     }
   },
 
   NegateConditionals(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       // 対象ノードの二項演算子を取得
       assert targetNode instanceof InfixExpression : "illegal statement";
@@ -245,135 +251,160 @@ public enum Mutator {
       }
 
       rewrite.replace(targetNode, newInfix, null);
+      return newInfix;
     }
   },
   ReturnValues(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   VoidMethodCalls(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
 
       // 対象ノードのオペランドを取得
       assert targetNode instanceof ExpressionStatement : "illegal statement";
       final ExpressionStatement statement = (ExpressionStatement) targetNode;
 
       rewrite.remove(statement, null);
+      return null;
     }
   },
   ConstructorCalls(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   EmptyReturns(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   FalseReturns(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   InlineConstant(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   NullReturns(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   NonVoidMethodCalls(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   PrimitiveReturns(true) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
       final AST ast = rewrite.getAST();
       final NumberLiteral newNumberLiteral = ast.newNumberLiteral("0");
       rewrite.replace(targetNode, newNumberLiteral, null);
+      return newNumberLiteral;
     }
   },
   RemoveConditionals(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   RemoveIncrements(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   TrueReturns(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ExperimentalArgumentPropagation(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ExperimentalBigInteger(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ExperimentalMemberVariable(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ExperimentalNakedReceiver(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ExperimentalSwitch(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   Negation(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ArithmeticOperatorReplacement(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ArithmeticOperatorDeletion(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   ConstantReplacement(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   BitwiseOperator(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   RelationalOperatorReplacement(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   },
   UnaryOperatorInsertion(false) {
     @Override
-    void manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+    ASTNode manipulateAST(final ASTNode targetNode, final ASTRewrite rewrite) {
+      return null;
     }
   };
   public final boolean available;
@@ -386,5 +417,5 @@ public enum Mutator {
     return this.available;
   }
 
-  abstract void manipulateAST(ASTNode targetNode, ASTRewrite rewrite);
+  abstract ASTNode manipulateAST(ASTNode targetNode, ASTRewrite rewrite);
 }

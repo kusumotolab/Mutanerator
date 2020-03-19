@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -141,7 +142,10 @@ public class Mutant {
   public String getText(final ASTNode rootNode, final String originalText) {
 
     final ASTRewrite rewrite = ASTRewrite.create(rootNode.getAST());
-    this.mutations.forEach(m -> m.mutator.manipulateAST(m.node, rewrite));
+    this.mutations.forEach(m -> {
+      final ASTNode mutatedNode = m.mutator.manipulateAST(m.node, rewrite);
+      m.setMutatedNode(mutatedNode);
+    });
 
     final Document document = new Document(originalText);
     try {
@@ -152,5 +156,26 @@ public class Mutant {
     }
 
     return document.get();
+  }
+
+  public List<String> getLog() {
+    List<String> logs = new ArrayList<>();
+    for (final Mutation mutation : mutations) {
+      final StringBuilder log = new StringBuilder();
+      log.append(mutation.mutator.name());
+      log.append(", ");
+      final CompilationUnit rootNode = (CompilationUnit) mutation.node.getRoot();
+      log.append(rootNode.getLineNumber(mutation.node.getStartPosition()));
+      log.append(", ");
+      log.append("\"" + this.getText(mutation.node) + "\"");
+      log.append(", ");
+      log.append("\"" + this.getText(mutation.getMutatedNode()) + "\"");
+      logs.add(log.toString());
+    }
+    return logs;
+  }
+
+  private String getText(final ASTNode node) {
+    return null != node ? node.toString() : "DELETED";
   }
 }

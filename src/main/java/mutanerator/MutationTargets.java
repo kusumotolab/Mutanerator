@@ -32,7 +32,7 @@ public class MutationTargets {
     final List<Mutation> mutations = new ArrayList<>();
     for (final Entry<Mutator, List<ASTNode>> entry : this.mutators.entrySet()) {
       final Mutator mutator = entry.getKey();
-      if(!mutator.isAvailable()){
+      if (!mutator.isAvailable()) {
         continue;
       }
       final List<ASTNode> nodes = entry.getValue();

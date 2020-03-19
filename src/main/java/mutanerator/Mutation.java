@@ -18,10 +18,12 @@ public class Mutation {
 
   final public Mutator mutator;
   final public ASTNode node;
+  private ASTNode mutatedNode;
 
   public Mutation(final Mutator mutator, final ASTNode target) {
     this.mutator = mutator;
     this.node = target;
+    this.mutatedNode = null;
   }
 
   @Override
@@ -41,7 +43,7 @@ public class Mutation {
   public String apply(final ASTNode rootNode, final String text) {
 
     final ASTRewrite rewrite = ASTRewrite.create(rootNode.getAST());
-    this.mutator.manipulateAST(this.node, rewrite);
+    this.mutatedNode = this.mutator.manipulateAST(this.node, rewrite);
 
     final Document document = new Document(text);
     try {
@@ -52,5 +54,13 @@ public class Mutation {
     }
 
     return document.get();
+  }
+
+  public void setMutatedNode(final ASTNode mutatedNode) {
+    this.mutatedNode = mutatedNode;
+  }
+
+  public ASTNode getMutatedNode() {
+    return this.mutatedNode;
   }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,6 +87,24 @@ public class MutaneratorMain {
       } catch (final IOException e) {
         e.printStackTrace();
         System.exit(1);
+      }
+    }
+
+    // generating a log file
+    // ログファイルを出力する
+    final Path logFile = config.getLogFile();
+    if (null != logFile) {
+      final List<String> lines = new ArrayList<>();
+      for (int index = 0; index < mutants.size(); index++) {
+        final Mutant mutant = mutants.get(index);
+        for (final String mutationText : mutant.getLog()) {
+          lines.add((index + 1) + ", " + mutationText);
+        }
+      }
+      try {
+        Files.write(logFile, lines, StandardCharsets.UTF_8);
+      } catch (final IOException e) {
+        e.printStackTrace();
       }
     }
   }
