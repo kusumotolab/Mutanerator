@@ -31,7 +31,7 @@ public class MutaneratorConfig {
     }
   }
 
-  @Option(name = "-l", required = true, aliases = "--log-file", metaVar = "<path>",
+  @Option(name = "-l", required = false, aliases = "--log-file", metaVar = "<path>",
       usage = "path of log file")
   public void setLogFile(final String stringPath) {
     this.logFile = Paths.get(stringPath);
