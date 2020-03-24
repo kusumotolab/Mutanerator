@@ -28,7 +28,7 @@ dependencies {
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
 
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:28.1-jre'
+    compile 'com.google.guava:guava:28.1-jre'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
@@ -37,7 +37,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClassName = 'mutanerator.App'
+    mainClassName = 'mutanerator.MutaneratorMain'
 }
 
 jar {
