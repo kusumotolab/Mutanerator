@@ -74,7 +74,7 @@ public class MutaneratorMain {
     final Path outputDir = config.getOutputDir();
     createDirectory(outputDir);
     final Path targetFileName = targetFilePath.getFileName();
-    final int digitNumber = Integer.toString(mutants.size() + 1)
+    final int digitNumber = Integer.toString(mutants.size())
         .length();
     for (int index = 0; index < mutants.size(); index++) {
       final String mutantDirName = Strings.padStart(Integer.toString(index + 1), digitNumber, '0');
