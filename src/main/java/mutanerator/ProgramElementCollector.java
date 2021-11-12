@@ -1,11 +1,13 @@
 package mutanerator;
 
+import java.util.Arrays;
 import java.util.Stack;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -15,7 +17,9 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
 import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 public class ProgramElementCollector extends ASTVisitor {
 
@@ -218,6 +222,27 @@ public class ProgramElementCollector extends ASTVisitor {
     }
 
     return super.visit(node);
+  }
+
+  @Override
+  public boolean visit(final TypeDeclaration node) {
+    final MethodDeclaration[] methods = node.getMethods();
+    if (Arrays.stream(methods)
+        .anyMatch(m -> "main".equals(m.getName()))) {
+      return super.visit(node);
+    }
+
+    return false;
+  }
+
+  @Override
+  public boolean visit(final ForStatement node) {
+    final Statement body = node.getBody();
+    if (null != body) {
+      body.accept(this);
+    }
+
+    return false;
   }
 
   private boolean inTargetRange(final ASTNode node) {
