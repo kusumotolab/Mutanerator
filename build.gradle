@@ -13,6 +13,7 @@ plugins {
     // Apply the application plugin to add support for building a CLI application.
     id 'application'
     id 'eclipse'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 repositories {
@@ -22,17 +23,20 @@ repositories {
 }
 
 dependencies {
-    compile 'args4j:args4j:2.33'
-    compile group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.core', version: '3.20.0'
-    testCompile group: 'org.assertj', name: 'assertj-core', version: '3.15.0'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+    implementation group: 'args4j', name: 'args4j', version: '2.37'
+    implementation group: 'org.eclipse.jdt', name: 'org.eclipse.jdt.core', version: '3.37.0'
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.25.3'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
 
     // This dependency is used by the application.
-    compile 'com.google.guava:guava:28.1-jre'
+    implementation group: 'com.google.guava', name: 'guava', version: '33.2.0-jre'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
     implementation 'junit:junit:4.12'
+
+    // for jar making
+    implementation 'com.opencsv:opencsv:5.6'
 }
 
 application {
